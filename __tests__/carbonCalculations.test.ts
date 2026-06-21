@@ -1,4 +1,4 @@
-import { calculateTransport, calculateEnergy, calculateDiet, calculateShopping, calculateTotalCarbon, getGrade } from '../lib/carbonCalculations';
+import { calculateTransport, calculateEnergy, calculateDiet, calculateShopping, getGrade } from '../lib/carbonCalculations';
 
 describe('Carbon Calculations', () => {
   it('calculates transport emissions correctly', () => {

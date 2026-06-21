@@ -18,16 +18,22 @@ function AnimatedNumber({ value }: { value: number }) {
   return <motion.span>{display}</motion.span>;
 }
 
+interface CarbonResults {
+  total: number;
+  breakdown: Record<string, number>;
+}
+
 export default function ResultsPage() {
   const router = useRouter();
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<CarbonResults | null>(null);
 
   useEffect(() => {
     const data = localStorage.getItem('prakriti_result') || localStorage.getItem('prakriti_results');
     if (!data) {
       router.push('/calculator');
     } else {
-      setResults(JSON.parse(data));
+      const timer = setTimeout(() => setResults(JSON.parse(data)), 0);
+      return () => clearTimeout(timer);
     }
   }, [router]);
 

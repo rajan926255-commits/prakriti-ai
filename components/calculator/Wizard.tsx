@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Car, Zap, Apple, ShoppingBag, ArrowRight, ArrowLeft } from 'lucide-react';
@@ -47,7 +47,6 @@ const Wizard = React.memo(function Wizard() {
     if (step > 0) setStep(step - 1);
   };
 
-  const currentStep = STEPS[step];
   const maxTotal = 15000; // for the circular progress
   const progressPercent = Math.min((displayTotal / maxTotal) * 100, 100);
 

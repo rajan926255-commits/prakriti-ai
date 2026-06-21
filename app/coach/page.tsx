@@ -5,15 +5,32 @@ import { Bot, ChevronDown, Car, Home, Leaf, ShoppingCart, Zap, Flame, Lightbulb,
 import Link from 'next/link';
 import { getGrade } from '@/lib/carbonCalculations';
 
-const iconMap: Record<string, any> = {
+interface CarbonResults {
+  total: number;
+  breakdown: Record<string, number>;
+}
+
+interface CoachTip {
+  title: string;
+  description: string;
+  saving: number;
+  icon: string;
+}
+
+interface CoachData {
+  tips: CoachTip[];
+  actionPlan: Record<string, string[]>;
+}
+
+const iconMap: Record<string, React.ElementType> = {
   Car, Home, Leaf, ShoppingCart, Zap, Flame, Lightbulb, Train
 };
 
 export default function CoachPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [data, setData] = useState<any>(null);
-  const [results, setResults] = useState<any>(null);
+  const [data, setData] = useState<CoachData | null>(null);
+  const [results, setResults] = useState<CarbonResults | null>(null);
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
 
   useEffect(() => {
@@ -42,9 +59,13 @@ export default function CoachPage() {
         if (!res.ok) throw new Error('Failed to fetch plan from AI Coach');
         const json = await res.json();
         setData(json);
-      } catch (e: any) {
+      } catch (e: unknown) {
         // Fallback is handled by API itself, but catch network errors
-        setError(e.message || 'Something went wrong');
+        if (e instanceof Error) {
+          setError(e.message || 'Something went wrong');
+        } else {
+          setError('Something went wrong');
+        }
       } finally {
         setLoading(false);
       }
@@ -72,7 +93,7 @@ export default function CoachPage() {
   const grade = results ? getGrade(results.total) : '';
   const totalKg = results ? Math.round(results.total) : 0;
   
-  const totalSavings = data ? data.tips.reduce((acc: number, tip: any) => acc + tip.saving, 0) : 0;
+  const totalSavings = data ? data.tips.reduce((acc: number, tip: CoachTip) => acc + tip.saving, 0) : 0;
   const treesPlanted = Math.round(totalSavings / 21);
   const reducedTotal = Math.max(0, totalKg - totalSavings);
 
@@ -118,7 +139,7 @@ export default function CoachPage() {
                 Your AI Action Plan
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {data.tips.map((tip: any, i: number) => {
+                {data.tips.map((tip: CoachTip, i: number) => {
                   const IconComponent = iconMap[tip.icon] || Leaf;
                   return (
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }} key={i} className="glass-card p-6 flex flex-col relative overflow-hidden group hover:border-emerald-500/30 transition-colors">
@@ -142,7 +163,7 @@ export default function CoachPage() {
               <section>
                 <h2 className="text-2xl font-bold text-foreground mb-6">30-Day Action Plan</h2>
                 <div className="space-y-3">
-                  {Object.entries(data.actionPlan).map(([weekKey, actions]: [string, any], i: number) => {
+                  {Object.entries(data.actionPlan).map(([weekKey, actions]: [string, string[]]) => {
                     const weekTitle = weekKey.replace('week', 'Week ');
                     const isOpen = activeAccordion === weekKey;
                     return (
