@@ -16,7 +16,10 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
-    screenshot: 'only-on-failure',
+    screenshot: 'on',
+    contextOptions: {
+      reducedMotion: 'reduce',
+    },
     actionTimeout: 15000,
     navigationTimeout: 20000,
   },
